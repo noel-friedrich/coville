@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Coville Simulator</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="icon" type="image/png" href="img/favicon.ico">
+    </head>
+    <body>
+        <header>
+            <img src="img/logo.png" alt="Coville Logo" class="logo">
+            <h1>Coville Simulator</h1>
+        </header>
+
+        <div class="playerinfo-overlay" style="display: none"></div>
+        <div class="playerinfo-container" style="left: 100px; top: 400px; display: none">
+            <div class="info-table">
+                <div class="rowhead">ID</div>
+                <div class="rowvalue" id="viewplayer-id">-</div>
+                <div class="rowhead">Geimpft</div>
+                <div class="rowvalue" id="viewplayer-vaccinated">-</div>
+                <div class="rowhead">Infiziert</div>
+                <div class="rowvalue" id="viewplayer-infected">-</div>
+                <div class="rowhead">Genesen</div>
+                <div class="rowvalue" id="viewplayer-immune">-</div>
+                <div class="rowhead">Umgebung</div>
+                <div class="rowvalue" id="viewplayer-environment">-</div>
+                <div class="rowhead">Alter</div>
+                <div class="rowvalue" id="viewplayer-age">-</div>
+                <div class="rowhead">Arbeit</div>
+                <div class="rowvalue" id="viewplayer-workplace">-</div>
+                <div class="rowhead">Zuhause</div>
+                <div class="rowvalue" id="viewplayer-home">-</div>
+                <div class="rowhead">Quarantäne</div>
+                <div class="rowvalue" id="viewplayer-quarantine">-</div>
+                <div class="rowhead">StayTicks</div>
+                <div class="rowvalue" id="viewplayer-stayticks">-</div>
+            </div>
+            <h1>Freunde</h1>
+            <div class="info-table single" id="viewplayer-friends-table">
+                <div class="rowvalue">ABC123</div>
+                <div class="rowvalue">ABC123</div>
+                <div class="rowvalue">ABC123</div>
+            </div>
+        </div>
+
+        <div class="loading-overlay" style="display: none" id="loading-overlay">
+            <div class="loading-container">
+                <img src="img/logo.png" alt="Coville Logo" class="logo rotating">
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="sidebar left">
+                <h1>Status</h1>
+                <button id="start-button">
+                    START
+                </button>
+                <button id="stop-button">
+                    STOP
+                </button>
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>Zeit</th>
+                            <td id="time-count">Tag#00 00:00</td>
+                        </tr>
+                        <tr>
+                            <th>TPS</th>
+                            <td id="tps-count">0</td>
+                        </tr>
+                        <tr>
+                            <th>Einwohner</th>
+                            <td id="inhabitant-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Infiziert</th>
+                            <td id="infected-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Geimpft</th>
+                            <td id="vaccinated-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Genesen</th>
+                            <td id="immune-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Gestorben</th>
+                            <td id="death-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Durchseuchung</th>
+                            <td id="infestation-count">0%</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>R Wert (14d)</th>
+                            <td id="r-value-count">0</td>
+                        </tr>
+                        <tr>
+                            <th>Umgebungen</th>
+                            <td id="environment-count">1</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Häuser</th>
+                            <td id="house-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Arbeitsplätze</th>
+                            <td id="workplace-count">0</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Schulen</th>
+                            <td id="school-count">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button id="reset-deaths-button">
+                    Tode zurücksetzen
+                </button>
+                <button id="reset-time-button">
+                    Zeit zurücksetzen
+                </button>
+
+                <h1>Struktur</h1>
+                <button id="add-house-button" class="add">
+                    Haus hinzufügen
+                </button>
+                <div class="button-table">
+                    <button id="add-10-houses-button">
+                        +10 Häuser
+                    </button>
+                    <button id="add-100-houses-button">
+                        +100 Häuser
+                    </button>
+                </div>
+                <button id="add-workplace-button" class="add">
+                    Arbeitsplatz hinzufügen
+                </button>
+                <button id="add-school-button" class="add">
+                    Schule hinzufügen
+                </button>
+                <button id="load-preset-1-button">
+                    Preset laden (1000)
+                </button>
+                <button id="load-preset-2-button">
+                    Preset laden (10.000)
+                </button>
+
+                <h1>Virus</h1>
+                <button id="infect-random-button">
+                    Zufälligen Infizieren
+                </button>
+                <button id="remove-virus-button">
+                    Virus entfernen
+                </button>
+
+                <h1>Maßnahmen</h1>
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>Impfrate</th>
+                            <td id="vaccination-percentage-count">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="button-table">
+                    <button id="increase-vaccinations-button" class="textAlignCenter">
+                        +
+                    </button>
+                    <button id="decrease-vaccinations-button" class="textAlignCenter">
+                        -
+                    </button>
+                </div>
+            </div>
+
+            <div class="sim-content-container">
+                <canvas id="main-canvas" width="500" height="500"></canvas>
+                <div id="please-choose-environment">
+                    Wähle eine Umgebung/Grafik aus, um sie hier anzuzeigen
+                </div>
+                <div class="config-container-container">
+                    <div class="config-container">
+                        <h1>Config/Parameter</h1>
+                        <div class="configs">
+                            <label>Freunde pro Spieler</label>
+                            <input type="number" id="config-friends-per-player" value="3" min="0" max="10">
+                            <label>Infektionsradius (Blöcke)</label>
+                            <input type="number" id="config-infection-radius" value="3" min="0" max="10">
+                            <label>Infektions-Chance</label>
+                            <input type="number" id="config-infection-chance" value="0.05" min="0.00" max="1.0" step=0.01>
+                            <label>Lethalitäts Rate<br>(Funktion: X=Alter, Y=Prozent)</label>
+                            <input type="text" id="config-lethality-rate" value="0.0688*1.0648^alter">
+                            <label>Besuchs-Chance</label>
+                            <input type="number" id="config-visit-chance" value="0.0015873" min="0.0000" max="1.0" step=0.0001>
+                            <label>Infektionslänge (Tage)</label>
+                            <input type="number" id="config-infection-length" value="7" min="0" max="100">
+                            <label>Inkubationszeit (Tage)</label>
+                            <input type="number" id="config-incubation-time" value="3" min="0" max="100">
+                            <label>Quarantänezeit (Tage)</label>
+                            <input type="number" id="config-quarantine-time" value="7" min="0" max="100">
+                            <label>Test-Chance</label>
+                            <input type="number" id="config-test-chance" value="0.3" min="0.0" max="1.0" step=0.1>
+                            <label>False-Negative Testrate</label>
+                            <input type="number" id="config-false-negative-test-rate" value="0" min="0.0" max="1.0" step=0.1>
+                            <label>False-Positive Testrate</label>
+                            <input type="number" id="config-false-positive-test-rate" value="0" min="0.0" max="1.0" step=0.1>
+                            <label>Impf Lethalitäts Faktor</label>
+                            <input type="number" id="config-vaccination-lethality-factor" value="0.1" min="0.0" max="10.0" step=0.1>
+                            <label>Impf Infektionsdauer Faktor</label>
+                            <input type="number" id="config-vaccination-infection-duration-factor" value="0.5" min="0.0" max="10.0" step=0.1>
+                            <label>Impf Infektionswahrscheinlichkeits Faktor</label>
+                            <input type="number" id="config-vaccination-infection-probability-factor" value="0.25" min="0.0" max="10.0" step=0.05>
+                            <label>Zuhausebleib Wahrscheinlichkeit</label>
+                            <input type="number" id="config-stayhome-probability" value="0" min="0.0" max="1.0" step=0.05>
+                        </div>
+                        <button id="reset-config-button">
+                            Auf Standardwerte zurücksetzen
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar right">
+                <h1>Grafik</h1>
+                <button id="show-infections-per-day-button">
+                    Infektionen/Tag anzeigen
+                </button>
+                <button id="show-infected-per-day-button">
+                    Infizierte/Tag anzeigen
+                </button>
+                <button id="show-immune-per-day-button">
+                    Genesene/Tag anzeigen
+                </button>
+                <button id="show-alive-per-day-button">
+                    Lebende/Tag anzeigen
+                </button>
+                <button id="show-status-per-day-button">
+                    Status/Tag anzeigen
+                </button>
+                <h1>Umgebungen</h1>
+                <button id="view-no-environment-button">
+                    Keine Umgebung ansehen
+                </button>
+                <h1 id="sidebar-houses-header">Häuser</h1>
+                <div id="houses-section">
+                </div>
+            </div>
+        </div>
+
+        <script src="js/clock.js"></script>
+        <script src="js/constants.js"></script>
+        <script src="js/config.js"></script>
+        <script src="js/dom-functions.js"></script>
+        <script src="js/simulation.js"></script>
+        <script src="js/visualizer.js"></script>
+        <script src="js/main.js"></script>
+        
+    </body>
+</html>
