@@ -1,0 +1,366 @@
+html {
+    --sidebar-width: 300px;
+    --header-background: #333333;
+    --header-color: #ffffff;
+    --background-color: #f0f0f0;
+    --text-color: #333333;
+    --sidebar-background: #ffffff;
+    --font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --sidebar-darker-background: #f5f5f5;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    color: var(--text-color);
+}
+
+header {
+    background: var(--header-background);
+    padding: 20px;
+    position: relative;
+    height: 35px;
+}
+
+header > .logo {
+    height: 35px;
+    position: absolute;
+}
+
+.rotating {
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin { 
+    100% { 
+        -webkit-transform: rotate(360deg); 
+        transform: rotate(360deg); 
+    } 
+}
+
+header > h1 {
+    color: var(--header-color);
+    font-size: 30px;
+    margin: 0;
+    margin-left: 50px;
+}
+
+.content-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+    height: calc(100vh - 75px);
+    background: var(--background-color);
+}
+
+.sidebar {
+    background: var(--sidebar-background);
+    padding: 20px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar > * {
+    margin-bottom: 10px;
+}
+
+.sidebar > h1 {
+    font-size: 25px;
+    margin-top: 0;
+    text-align: center;
+}
+
+.sidebar > table.info-table {
+    width: 100%;
+    border: 1px solid var(--text-color);
+    padding: 10px;
+    background-color: var(--sidebar-darker-background);
+}
+
+.sidebar > table.info-table > tbody > tr > * {
+    font-family: var(--font-family);
+}
+
+.sidebar > table.info-table > tbody > tr.subpoint > th {
+    padding-left: 20px;
+}
+
+.sidebar > table.info-table > tbody > tr > th {
+    font-weight: normal;
+    text-align: left;
+}
+
+.sidebar > table.info-table > tbody > tr > td {
+    text-align: right;
+}
+
+.sidebar > #houses-section > button {
+    margin-bottom: 10px;
+}
+
+.sidebar > button, .sidebar > div > button {
+    width: 100%;
+    font-size: 20px;
+    background-color: var(--sidebar-darker-background);
+    border: none;
+    color: var(--text-color);
+    padding: 10px;
+    cursor: pointer;
+    position: relative;
+    text-align: left;
+    border: 1px solid var(--text-color);
+    font-size: 17px;
+    font-family: FontAwesome;
+}
+
+.sidebar > button.selected, .sidebar > div > button.selected {
+    background: white;
+}
+
+.sidebar.right button.envchoice > button.delete {
+    color: var(--text-color);
+    border: none;
+    background: lightpink;
+    cursor: pointer;
+    position: absolute;
+    font-size: 15px;
+    text-align: right;
+    right: 0;
+    height: 100%;
+    top: 0;
+}
+
+.sidebar.right button.envchoice > button.delete:hover {
+    background: lightcoral;
+}
+
+.sidebar > button.selected:hover, .sidebar > div > button.selected:hover {
+    box-shadow: none;
+}
+
+.sidebar > #start-button {
+    text-align: center;
+    background: lightgreen;
+}
+
+.sidebar > #stop-button {
+    display: none;
+    text-align: center;
+    background: lightpink;
+}
+
+.sidebar > .button-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+}
+
+.sidebar > button.add::after {
+    content: "+";
+    font-family: FontAwesome;
+    font-size: 20px;
+    margin-right: 10px;
+    position: absolute;
+    right: 3px;
+}
+
+.sidebar > button.sub::after {
+    content: "-";
+    font-family: FontAwesome;
+    font-size: 20px;
+    margin-right: 12px;
+    position: absolute;
+    right: 3px;
+}
+
+.sidebar > button:hover, .sidebar > div > button:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background: white;
+}
+
+.sim-content-container {
+    position: relative;
+    overflow-y: auto;
+}
+
+#main-canvas {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    background: var(--background-color);
+    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+#please-choose-environment {
+    z-index: 101;
+    position: absolute;
+    width: 500px;
+    box-sizing: border-box;
+    padding: 50px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 30px;
+    font-family: fontAwesome;
+    color: gray;
+    font-style: italic;
+    cursor: default;
+}
+
+.playerinfo-container {
+    position: absolute;
+    width: 250px;
+    box-sizing: border-box;
+    background: white;
+    text-align: center;
+    font-size: 20px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+    z-index: 1000;
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.playerinfo-container > .info-table {
+    background: var(--sidebar-darker-background);
+    padding: 10px;
+    border: 1px solid var(--text-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.playerinfo-container > .info-table.single {
+    grid-template-columns: 1fr;
+}
+
+.playerinfo-container > .info-table > .rowhead {
+    text-align: left;
+}
+
+.playerinfo-container > .info-table > .rowvalue {
+    text-align: right;
+}
+
+.playerinfo-container > .info-table.single > .rowvalue {
+    text-align: center;
+    cursor: pointer;
+}
+
+.playerinfo-container > .info-table.single > .rowvalue:hover {
+    color: blue;
+}
+
+.playerinfo-container > h1 {
+    margin: 0;
+    margin-top: 10px;
+    font-size: 25px;
+}
+
+.playerinfo-overlay {
+    z-index: 999;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.textAlignCenter {
+    text-align: center !important;
+}
+
+.config-container-container {
+    width: 100%;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+.config-container {
+    width: 100%;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.config-container > h1 {
+    font-family: fontAwesome;
+    font-weight: normal;
+    text-align: center;
+    color: gray;
+    font-style: italic;
+}
+
+.configs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+    padding: 20px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    background: var(--sidebar-darker-background);
+    border: 1px solid var(--text-color);
+}
+
+.configs > * {
+    margin-top: 10px;
+}
+
+#reset-config-button {
+    margin-bottom: 20px;
+    background-color: var(--sidebar-darker-background);
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    font-size: 17px;
+    font-family: fontAwesome;
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+#reset-config-button:hover {
+    background: white;
+}
+
+.configs > input {
+    font-size: 17px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 5px;
+}
+
+.configs > label {
+    text-align: right;
+    padding-top: 5px;
+    font-size: 17px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+}
+
+.loading-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+}
+
+.loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading-container > img {
+    width: 100px;
+}
