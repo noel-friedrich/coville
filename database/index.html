@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Coville Datenbank</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="icon" type="image/png" href="../img/favicon.ico">
+    </head>
+    <body>
+        <header>
+            <img src="../img/logo.png" alt="Coville Logo" class="logo">
+            <h1>Coville Datenbank</h1>
+            <div class="nav">
+                <a href="https://www.noel-friedrich.de/coville/">Simulator</a>
+            </div>
+        </header>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-container">
+                <img src="../img/logo.png" alt="Coville Logo" class="logo rotating">
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="simulations-container">
+                <input id="simulations-search-input" placeholder="Suchen..." type="text">
+                <p id="no-search-results">Es wurden keine Simulationen gefunden, die der Suche entsprechen</p>
+            </div>
+
+            <div class="control-bar">
+                <table class="info-table">
+                    <tbody>
+                        <tr>
+                            <th>Zeit</th>
+                            <td id="time-count">-</td>
+                        </tr>
+                        <tr>
+                            <th>Einwohner</th>
+                            <td id="inhabitant-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Infiziert</th>
+                            <td id="infected-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Geimpft</th>
+                            <td id="vaccinated-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Genesen</th>
+                            <td id="immune-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Gestorben</th>
+                            <td id="death-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Durchseuchung</th>
+                            <td id="infestation-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>R Wert (14d)</th>
+                            <td id="r-value-count">-</td>
+                        </tr>
+                        <tr>
+                            <th>Umgebungen</th>
+                            <td id="environment-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Häuser</th>
+                            <td id="house-count">-</td>
+                        </tr>
+                        <tr class="subpoint">   
+                            <th>Arbeitsplätze</th>
+                            <td id="workplace-count">-</td>
+                        </tr>
+                        <tr class="subpoint">
+                            <th>Schulen</th>
+                            <td id="school-count">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h1>Grafik</h1>
+                <button id="show-infections-per-day-button">
+                    Infektionen/Tag anzeigen
+                </button>
+                <button id="show-infected-per-day-button">
+                    Infizierte/Tag anzeigen
+                </button>
+                <button id="show-immune-per-day-button">
+                    Genesene/Tag anzeigen
+                </button>
+                <button id="show-alive-per-day-button">
+                    Lebende/Tag anzeigen
+                </button>
+                <button id="show-status-per-day-button">
+                    Status/Tag anzeigen
+                </button>
+                <button id="show-r-value-per-day-button">
+                    R-Wert/Tag anzeigen
+                </button>
+                <h1>Datentabelle</h1>
+                <button id="download-data-table-button">
+                    Herunterladen (.csv)
+                </button>
+                <button id="download-data-table-json-button">
+                    Herunterladen (.json)
+                </button>
+                <h1>Maßnahmen</h1>
+                <h1 id="parameter-header">Parameter</h1>
+                <div class="parameter-table-container">
+                    <table class="info-table spaced">
+                        <tbody>
+                            <tr>
+                                <th>Freunde/Spieler</th>
+                                <td id="config-friends_per_player">-</td>
+                            </tr>
+                            <tr>
+                                <th>Immunitätsticks</th>
+                                <td id="config-immuneticks">-</td>
+                            </tr>
+                            <tr>
+                                <th>Inkubationsticks</th>
+                                <td id="config-incubationticks">-</td>
+                            </tr>
+                            <tr>
+                                <th>Infektionschance</th>
+                                <td id="config-infection_chance">-</td>
+                            </tr>
+                            <tr>
+                                <th>Infektionsradius</th>
+                                <td id="config-infection_radius">-</td>
+                            </tr>
+                            <tr>
+                                <th>Lethalitätsrate</th>
+                                <td id="config-lethality_rate">-</td>
+                            </tr>
+                            <tr>
+                                <th>Quarantäneticks</th>
+                                <td id="config-quarantine_ticks">-</td>
+                            </tr>
+                            <tr>
+                                <th>Homeoffice-Chance</th>
+                                <td id="config-stayhome_probability">-</td>
+                            </tr>
+                            <tr>
+                                <th>Test-Chance</th>
+                                <td id="config-test_chance">-</td>
+                            </tr>
+                            <tr>
+                                <th>False-Negative-Rate</th>
+                                <td id="config-test_false_negative_chance">-</td>
+                            </tr>
+                            <tr>
+                                <th>False-Positive-Rate</th>
+                                <td id="config-test_false_positive_chance">-</td>
+                            </tr>
+                            <tr>
+                                <th>Impf-Infektionsdauer-Faktor</th>
+                                <td id="config-vaccination_infection_length_factor">-</td>
+                            </tr>
+                            <tr>
+                                <th>Impf-Infektionschance-Faktor</th>
+                                <td id="config-vaccination_infection_chance_factor">-</td>
+                            </tr>
+                            <tr>
+                                <th>Impf-Lethalitätsrate-Faktor</th>
+                                <td id="config-vaccination_lethality_factor">-</td>
+                            </tr>
+                            <tr>
+                                <th>Besuchschance</th>
+                                <td id="config-visit_chance">-</td>
+                            </tr>
+                            <tr>
+                                <th>Reinfektionszeit (Ticks)</th>
+                                <td id="config-reinfection_time">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="simulation-container">
+                <div class="sim-content-container">
+                    <canvas id="main-canvas" width="500" height="500"></canvas>
+                    <div id="please-choose-environment">
+                        Wähle eine Simulation/Grafik aus, um sie hier anzuzeigen
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-bar nopadding">
+                <table class="big">
+                    <thead>
+                        <tr>
+                            <th>Tag</th>
+                            <th>Einwohner</th>
+                            <th>Infiziert</th>
+                            <th>Genesen</th>
+                            <th>Gestorben</th>
+                            <th>Durchseuchung</th>
+                            <th>R Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script src="js/constants.js"></script>
+        <script src="../js/clock.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/lib.js"></script>
+        <script src="../js/canvasplot.js"></script>
+        <script src="js/main.js"></script>
+        
+    </body>
+</html>
