@@ -1,4 +1,6 @@
-let city = new Environment(ENVIRONMENT_TYPE.CITY, 100, 100, ENVIRONMENT_TYPE.CITY)
+let city = new Environment(ENVIRONMENT_TYPE.CITY, 300, 300, ENVIRONMENT_TYPE.CITY)
+city.visibleAtSidebar = true
+updateEnvironmentChoice()
 
 MAIN_CANVAS.addEventListener("click", event => {
     if (!SELECTED_ENVIRONMENT) return
@@ -59,6 +61,8 @@ function configAfterFastAdd() {
     vaccinatePercentage(VACCINATION_PERCENTAGE)
     updateEnvironmentChoice()
     updateTable()
+    if (RUNNING_GRAPH)
+        PLEASE_CHOOSE_ENVIRONMENT.style.display = "none"
 }
 
 ADD_HOUSE_BUTTON.addEventListener("click", event => {
@@ -98,10 +102,29 @@ ADD_SCHOOL_BUTTON.addEventListener("click", event => {
     updateTable()
 })
 
-INFECT_RANDOM_BUTTON.addEventListener("click", event => {
+function infectRandom() {
     let allPlayers = getAllPlayers()
     let randomPlayer = allPlayers[randomInt(0, allPlayers.length - 1)]
+    for (let i = 0; i < 100; i++) {
+        if (!randomPlayer.infected) break
+        randomPlayer = allPlayers[randomInt(0, allPlayers.length - 1)]
+    }
     randomPlayer.infect()
+}
+
+INFECT_RANDOM_BUTTON.addEventListener("click", event => {
+    infectRandom()
+    updateTable()
+    if (SELECTED_ENVIRONMENT)
+        SELECTED_ENVIRONMENT.draw()
+    if (RUNNING_GRAPH)
+        RUNNING_GRAPH()
+})
+
+INFECT_5_RANDOM_BUTTON.addEventListener("click", event => {
+    for (let i = 0; i < 5; i++) {
+        infectRandom()
+    }
     updateTable()
     if (SELECTED_ENVIRONMENT)
         SELECTED_ENVIRONMENT.draw()
@@ -127,6 +150,7 @@ function loadConfig(config) {
         for (let i = 0; i < config.houses; i++) addHouseFast()
         for (let i = 0; i < config.workplaces; i++) addWorkplaceFast()
         for (let i = 0; i < config.schools; i++) addSchoolFast()
+        for (let i = 0; i < config.infect; i++) infectRandom()
         configAfterFastAdd()
         LOADING_OVERLAY.style.display = "none"
     }, 100)
@@ -136,7 +160,8 @@ LOAD_PRESET_1_BUTTON.addEventListener("click", event => {
     loadConfig({
         houses: 500,
         workplaces: 20,
-        schools: 2
+        schools: 2,
+        infect: 10
     })
 })
 
@@ -144,6 +169,9 @@ LOAD_PRESET_2_BUTTON.addEventListener("click", event => {
     loadConfig({
         houses: 5000,
         workplaces: 200,
-        schools: 20
+        schools: 20,
+        infect: 15
     })
 })
+
+updateTable()
