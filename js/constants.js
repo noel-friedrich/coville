@@ -4,6 +4,7 @@ const STOP_BUTTON = document.getElementById("stop-button")
 const TIME_COUNT = document.getElementById("time-count")
 const TPS_COUNT = document.getElementById("tps-count")
 const INHABITANT_COUNT = document.getElementById("inhabitant-count")
+const INCIDENCE_COUNT = document.getElementById("incidence-count")
 const INFECTED_COUNT = document.getElementById("infected-count")
 const VACCINATED_COUNT = document.getElementById("vaccinated-count")
 const IMMUNE_COUNT = document.getElementById("immune-count")
@@ -16,6 +17,8 @@ const SCHOOL_COUNT = document.getElementById("school-count")
 const INFESTATION_COUNT = document.getElementById("infestation-count")
 const VACCINATION_PERCENTAGE_COUNT = document.getElementById("vaccination-percentage-count")
 const LOGO_IMG = document.querySelector("header > .logo")
+
+const UPLOAD_STATUS_BUTTON = document.getElementById("upload-status-button")
 
 const SIM_CONTENT_CONTAINER = document.querySelector(".sim-content-container")
 const CONFIG_CONTAINER_CONTAINER = document.querySelector(".config-container-container")
@@ -33,6 +36,7 @@ const LOAD_PRESET_1_BUTTON = document.getElementById("load-preset-1-button")
 const LOAD_PRESET_2_BUTTON = document.getElementById("load-preset-2-button")
 
 const INFECT_RANDOM_BUTTON = document.getElementById("infect-random-button")
+const INFECT_5_RANDOM_BUTTON = document.getElementById("infect-5-random-button")
 const REMOVE_VIRUS_BUTTON = document.getElementById("remove-virus-button")
 
 const INCREASE_VACCINATIONS_BUTTON = document.getElementById("increase-vaccinations-button")
@@ -48,6 +52,7 @@ const SHOW_INFECTED_PER_DAY_BUTTON = document.getElementById("show-infected-per-
 const SHOW_IMMUNE_PER_DAY_BUTTON = document.getElementById("show-immune-per-day-button")
 const SHOW_ALIVE_PER_DAY_BUTTON = document.getElementById("show-alive-per-day-button")
 const SHOW_STATUS_PER_DAY_BUTTON = document.getElementById("show-status-per-day-button")
+const SHOW_R_VALUE_PER_DAY_BUTTON = document.getElementById("show-r-value-per-day-button")
 
 const VIEWPLAYER_ID = document.getElementById("viewplayer-id")
 const VIEWPLAYER_VACCINATED = document.getElementById("viewplayer-vaccinated")
@@ -67,7 +72,9 @@ const VIEWPLAYER_OVERLAY = document.querySelector(".playerinfo-overlay")
 const VIEW_NO_ENVIRONMENT_BUTTON = document.getElementById("view-no-environment-button")
 
 const SIDEBAR_HOUSES_HEADER = document.getElementById("sidebar-houses-header")
-const HOUSES_SECTION = document.getElementById("houses-section")
+const SEARCH_ENVIRONMENT_INPUT = document.getElementById("search-environment-input")
+const NO_ENVIRONMENTS_FOUND_INFO = document.getElementById("no-environments-found-info")
+const TOO_MANY_ENVIRONMENTS_FOUND_INFO = document.getElementById("too-many-environments-found-info")
 
 const TICKS_PER_HOUR = 15
 const TICKS_PER_DAY = 360
@@ -88,8 +95,18 @@ const CONFIG_VACCINATION_INFECTION_PROBABILITY_FACTOR = document.getElementById(
 const CONFIG_LETHALITY_RATE = document.getElementById("config-lethality-rate")
 const RESET_CONFIG_BUTTON = document.getElementById("reset-config-button")
 const CONFIG_STAYHOME_PROBABILITY = document.getElementById("config-stayhome-probability")
+const CONFIG_REINFECTION_TIME = document.getElementById("config-reinfection-time")
 
 const LOADING_OVERLAY = document.getElementById("loading-overlay")
+
+const MEASUREMENU_CANVAS = document.getElementById("measuremenu-canvas")
+const MEASUREMENU_CANVAS_CONTEXT = MEASUREMENU_CANVAS.getContext("2d")
+MEASUREMENU_CANVAS.width = MEASUREMENU_CANVAS.clientWidth
+MEASUREMENU_CANVAS.height = MEASUREMENU_CANVAS.clientHeight
+
+const MEASUREMENU_ADD_TRIGGER_BUTTON = document.getElementById("measuremenu-add-trigger-button")
+const MEASUREMENU_ADD_MEASURE_BUTTON = document.getElementById("measuremenu-add-measure-button")
+const MEASUREMENU_INNER = document.getElementById("measuremenu-inner")
 
 let ENVIRONMENTS = Array()
 let CLOCK = new Clock()
@@ -106,8 +123,12 @@ let infectionsPerDay = []
 let alivePerDay = []
 let infectedPerDay = []
 let immunePerDay = []
+let rValuePerDay = []
 
 let USED_PLAYER_IDS = Array()
+
+let MEASURE_CLOSE_CITY = false
+let MEASURE_CLOSE_SCHOOLS = false
 
 let TPS = 0
 let TICK_COUNT = 0
@@ -117,6 +138,10 @@ let RUNNING_FUNC = null
 let RUNNING_START_TIME = null
 let RUNNING_TICKS_COUNT = null
 let RUNNING_GRAPH = null
+
+let SIDEBAR_SEARCH_MODE = false
+
+let SEARCH_ENVIRONMENTS_CACHE = Array()
 
 const ENVIRONMENT_TYPE = {
     HOUSE: "Haus",
