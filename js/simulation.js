@@ -1,6 +1,7 @@
 class Player {
     
     constructor(environment, distributeNew=true) {
+        this.gaussianError = (randomGaussian() + 0.5)
         this.infected = false
         this.infectedTicks = 0
         this.incubationTicks = 0
@@ -12,17 +13,19 @@ class Player {
         this.y = randomInt(0, environment.height - 1)
         this.generateNewTarget(environment)
         this.friends = Array()
-        this.currEnvName = environment.name
+        this.currentEnvironment = environment
         this.job = getJob(this.age)
         this.home = environment
         this.workplace = null
         this.stayTicks = 0
         this.quarantineTicks = 0
-        this.maxImmuneTicks = IMMUNETICKS
-        this.maxIncubationTicks = INCUBATIONTICKS
+        this.maxImmuneTicks = Math.round(IMMUNETICKS * this.gaussianError)
+        this.maxIncubationTicks = Math.round(INCUBATIONTICKS * this.gaussianError)
         this.lethalityRate = calcLethalityRate(this.age)
-        this.infectionChance = INFECTION_CHANCE
+        this.infectionChance = INFECTION_CHANCE * this.gaussianError
         this.infectedPlayersCount = 0
+        this.reinfectionTime = Math.round(REINFECTION_TIME * this.gaussianError)
+        this.infectionDate = null
         this.immunizationDate = null
         if (distributeNew) {
             distributeFriends()
@@ -30,6 +33,10 @@ class Player {
             vaccinatePercentage(VACCINATION_PERCENTAGE)
         }
         this.stayHomeToday = false
+    }
+
+    get currEnvName() {
+        return this.currentEnvironment.name
     }
 
     generateNewTarget(environment) {
@@ -52,6 +59,9 @@ class Player {
             this.stayTicks--
         if (this.quarantineTicks > 0)
             this.quarantineTicks--
+        if (this.immunizationDate != null && this.immunizationDate + this.reinfectionTime < TICK_COUNT) {
+            this.unimmunize()
+        }
     }
 
     draw(xStep, yStep) {
@@ -92,11 +102,20 @@ class Player {
         this.immunizationDate = TICK_COUNT
     }
 
+    unimmunize() {
+        this.immune = false
+        this.infected = false
+        this.infectedTicks = 0
+        this.immunizationDate = null
+        this.infectedPlayersCount = 0
+    }
+
     infect() {
         this.infected = true
         this.infectedTicks = 0
         this.incubationTicks = this.maxIncubationTicks
         infectionsPerDay[CLOCK.days] += 1
+        this.infectionDate = TICK_COUNT
     }
 
     removeVirus() {
@@ -123,7 +142,7 @@ class Player {
     }
 
     test() {
-        if (this.infected) {
+        if (this.isContagious) {
             if (Math.random() <= TEST_FALSE_NEGATIVE_CHANCE) {
                 return false
             } else {
@@ -144,6 +163,25 @@ class Player {
         }
     }
 
+    sendIntoQuarantine() {
+        this.quarantineTicks = QUARANTINE_TICKS
+        if (this.currentEnvironment != this.home) {
+            transferPlayer(this, this.currentEnvironment, this.home)
+        }
+    }
+
+    get isContagious() {
+        return this.infected && Math.round(this.incubationTicks) == 0
+    }
+
+    get isInQuarantine() {
+        return this.quarantineTicks > 0
+    }
+
+    get isStaying() {
+        return this.stayTicks > 0
+    }
+
 }
 
 class Environment {
@@ -158,13 +196,14 @@ class Environment {
         if (updateNew)
             updateEnvironmentChoice()
         this.id = ENVIRONMENTS.length
+        this.visibleAtSidebar = false
     }
 
     simulateTick(jobTimes) {
         let visitTime = isVisitTime()
         for (let player of this.players) {
             player.move(this)
-            if (player.infected && player.incubationTicks == 0)
+            if (player.isContagious)
             for (let otherPlayer of this.players) {
                 if (otherPlayer.infected || otherPlayer.immune) continue
                 let distance = Math.abs(player.x - otherPlayer.x) + Math.abs(player.y - otherPlayer.y)
@@ -177,33 +216,32 @@ class Environment {
             let jobActive = jobTimes[player.job]
             if (jobActive == undefined)
                 jobActive = isJobTime(player.job)
-            if (this.type != player.job && jobActive && player.quarantineTicks == 0 && !player.stayHomeToday) {
-                transferPlayer(player, this, player.workplace)
-            } else if (this == player.workplace && !jobActive && player.stayTicks == 0) {
+            if (this.type != player.job && jobActive && !player.isInQuarantine && !player.stayHomeToday) {
+                if (!(player.job == ENVIRONMENT_TYPE.SCHOOL && MEASURE_CLOSE_SCHOOLS))
+                    if (!(player.job == ENVIRONMENT_TYPE.CITY && MEASURE_CLOSE_CITY))
+                        transferPlayer(player, this, player.workplace)
+            } else if (this == player.workplace && !jobActive && !player.isStaying) {
                 transferPlayer(player, this, player.home)
             }
 
-            if (visitTime && Math.random() <= VISIT_CHANCE) {
-                let targetIndex = randomInt(0, player.friends.length - 1)
-                let friend = player.friends[targetIndex]
-                if (friend && friend.quarantineTicks == 0) {
-                    transferPlayer(player, this, friend.home)
-                    player.stayTicks = TICKS_PER_HOUR * randomInt(1, 3)
-                    TOTAL_VISITS++
-                }
-            }
-
-            if (CLOCK.hours == 8 && CLOCK.minutes == 0 && Math.random() <= TEST_CHANCE) {
+            if (CLOCK.hours == 7 && CLOCK.minutes == 0 && Math.random() <= TEST_CHANCE) {
                 let result = player.test()
                 TOTAL_TESTS++
                 if (result == true) {
                     TOTAL_POSITIVE_TESTS++
-                    for (let familyMember of player.home.players) {
-                        familyMember.quarantineTicks = QUARANTINE_TICKS
-                        player.home.quarantineTicks = QUARANTINE_TICKS
-                    }
+                    sendHouseIntoQuarantine(player.home)
                 } else {
                     TOTAL_NEGATIVE_TESTS++
+                }
+            }
+
+            if (visitTime && Math.random() <= VISIT_CHANCE && !player.isInQuarantine) {
+                let targetIndex = randomInt(0, player.friends.length - 1)
+                let friend = player.friends[targetIndex]
+                if (friend && !friend.isInQuarantine) {
+                    transferPlayer(player, this, friend.home)
+                    player.stayTicks = parseInt(TICKS_PER_HOUR * (Math.random() + 1) * 3)
+                    TOTAL_VISITS++
                 }
             }
         }
@@ -226,6 +264,13 @@ class Environment {
  
 }
 
+function sendHouseIntoQuarantine(houseEnv) {
+    for (let player of houseEnv.players) {
+        player.sendIntoQuarantine()
+    }
+    houseEnv.quarantineTicks = QUARANTINE_TICKS
+}
+
 function getJobTimes() {
     return {
         [ENVIRONMENT_TYPE.WORKPLACE]: isJobTime(ENVIRONMENT_TYPE.WORKPLACE),
@@ -237,7 +282,7 @@ function transferPlayer(player, currentEnv, targetEnv) {
     if (!targetEnv || targetEnv == currentEnv) return
     currentEnv.players.splice(currentEnv.players.indexOf(player), 1)
     targetEnv.players.push(player)
-    player.currEnvName = targetEnv.name
+    player.currentEnvironment = targetEnv
     player.generateNewTarget(targetEnv)
     player.x = player.targetX
     player.y = player.targetY
@@ -255,9 +300,6 @@ function simulateTick() {
         env.simulateTick(jobTimes)
 
     RUNNING_TICKS_COUNT += 1
-    calcTPS()
-    if ((RUNNING_TICKS_COUNT - 1) % TICKS_PER_DAY == 0)
-        updateTable()
     if (SELECTED_ENVIRONMENT)
         SELECTED_ENVIRONMENT.draw()
     CLOCK.advanceMinutes(4)
@@ -265,14 +307,37 @@ function simulateTick() {
         infectionsPerDay.push(0)
     }
     if (CLOCK.hours == 0 && CLOCK.minutes == 0) {
+        calcTPS()
+        updateTable()
         let allPlayers = getAllPlayers()
         alivePerDay.push(allPlayers.length)
         infectedPerDay.push(countInfected(allPlayers))
+        let rValue = calcRValue(allPlayers)
+        rValuePerDay.push(rValue == "-" ? 0 : rValue)
         immunePerDay.push(countImmune(allPlayers))
         allPlayers.forEach(p => p.onNewDay())
+
+        for (let measure of measureMenu.measures) {
+            measure.update()
+        }
     }
     if (RUNNING_GRAPH)
         RUNNING_GRAPH()
 
     TICK_COUNT++
 }
+
+function simulateXTicks(ticks) {
+    for (let i = 0; i < ticks; i++)
+        simulateTick()
+}
+
+let simulate10Ticks = () => simulateXTicks(10)
+let simulate9Ticks = () => simulateXTicks(9)
+let simulate8Ticks = () => simulateXTicks(8)
+let simulate7Ticks = () => simulateXTicks(7)
+let simulate6Ticks = () => simulateXTicks(6)
+let simulate5Ticks = () => simulateXTicks(5)
+let simulate4Ticks = () => simulateXTicks(4)
+let simulate3Ticks = () => simulateXTicks(3)
+let simulate2Ticks = () => simulateXTicks(2)
