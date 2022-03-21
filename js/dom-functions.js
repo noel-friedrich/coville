@@ -20,6 +20,25 @@ function countInfected(allPlayers) {
     return count
 }
 
+function countIncidence(allPlayers) {
+    let incidence = countInfected(allPlayers) / allPlayers.length * 100000
+    return isNaN(incidence) ? 0 : Math.round(incidence)
+}
+
+function getRandomInGaussian(mean, stdDev) {
+    let u = 0, v = 0
+    while (u === 0) u = Math.random() //Converting [0,1) to (0,1)
+    while (v === 0) v = Math.random()
+    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+    num = num / 10.0 + 0.5 // Translate to 0 -> 1
+    num = num * stdDev + mean // Scale to 0 -> N
+    return num
+}
+
+function randomGaussian() {
+    return getRandomInGaussian(0, 1)
+}
+
 function countVaccinated(allPlayers) {
     let count = 0
     for (let player of allPlayers)
@@ -73,35 +92,59 @@ function updateStatus() {
     }
 }
 
-function changeStatus() {
-    RUNNING = !RUNNING
-    updateStatus()
-
-    if (RUNNING) {
-        RUNNING_FUNC = setInterval(simulateTick)
-        RUNNING_START_TIME = Date.now()
-        RUNNING_TICKS_COUNT = 0
-        LOGO_IMG.classList.add("rotating")
-    } else {
-        LOGO_IMG.classList.remove("rotating")
-        TPS = 0
-        if (RUNNING_FUNC)
-            clearInterval(RUNNING_FUNC)
-        RUNNING_FUNC = null
+function start(force=false) {
+    if (!force) {
+        //run checks
+        let skippedWarning = true
+        if (ENVIRONMENTS.length == 0) {
+            skippedWarning = confirm("Es existieren noch keine Umgebungen.\nTrotzdem fortfahren?")
+        } else if (countEnvironmentType(ENVIRONMENT_TYPE.HOUSE) == 0) {
+            skippedWarning = confirm("Coville hat noch keine Einwohner.\nTrotzdem fortfahren?")
+        } else if (countInfected(getAllPlayers()) == 0) {
+            skippedWarning = confirm("Es sind aktuell keine Spieler infiziert.\nTrotzdem fortfahren?")
+        }
+        if (!skippedWarning) {
+            RUNNING = false
+            return
+        }
     }
+
+    RUNNING_FUNC = setInterval(simulate8Ticks, 0)
+    RUNNING_START_TIME = Date.now()
+    RUNNING_TICKS_COUNT = 0
+    LOGO_IMG.classList.add("rotating")
+}
+
+function stop() {
+    TPS = 0
+    if (RUNNING_FUNC)
+        clearInterval(RUNNING_FUNC)
+    RUNNING_FUNC = null
+    LOGO_IMG.classList.remove("rotating")
+}
+
+function changeStatus(event) {
+    RUNNING = !RUNNING
+    if (RUNNING) {
+        start(event.shiftKey)
+    } else {
+        stop()
+    }
+    updateStatus()
     updateTable()
 }
+
 START_BUTTON.addEventListener("click", changeStatus)
 STOP_BUTTON.addEventListener("click", changeStatus)
 
-function updateCanvasSize() {
+function updateCanvasSize(canvasSizeFactor=0.9) {
     let container = document.querySelector(".sim-content-container")
     if (container.clientWidth > container.clientHeight) {
-        MAIN_CANVAS.width  = container.clientHeight * 0.8
-        MAIN_CANVAS.height = container.clientHeight * 0.8
+        MAIN_CANVAS.width  = container.clientHeight * canvasSizeFactor
+        MAIN_CANVAS.height = container.clientHeight * canvasSizeFactor
     } else {
-        MAIN_CANVAS.width  = container.clientWidth * 0.8
-        MAIN_CANVAS.height = container.clientWidth * 0.8
+        MAIN_CANVAS.width  = container.clientWidth * canvasSizeFactor
+        MAIN_CANVAS.height = container.clientWidth * canvasSizeFactor
     }
     PLEASE_CHOOSE_ENVIRONMENT.style.width = MAIN_CANVAS.width + "px"
 }
@@ -115,6 +158,7 @@ function updateTable() {
     let immune = countImmune(allPlayers)
     let infected = countInfected(allPlayers)
     INFECTED_COUNT.textContent = infected
+    INCIDENCE_COUNT.textContent = roundNum(countIncidence(allPlayers), 2)
     VACCINATED_COUNT.textContent = countVaccinated(allPlayers)
     IMMUNE_COUNT.textContent = immune
     R_VALUE_COUNT.textContent = calcRValue(allPlayers)
@@ -196,6 +240,7 @@ function typeIndex(env) {
 }
 
 function getCityWalkProbability() {
+    return (TICKS_PER_DAY) * 7
 	switch(CLOCK.hours) {
 		case 0: return 10000 * 8
 		case 1: return 15000 * 8
@@ -251,28 +296,69 @@ function randomEnvironment(type) {
     return randomEnvs[randomInt(0, randomEnvs.length - 1)]
 }
 
-function updateEnvironmentChoice() {
+SEARCH_ENVIRONMENT_INPUT.addEventListener("input", function() {
+    let searchValue = SEARCH_ENVIRONMENT_INPUT.value.toLowerCase().replace(/\s/g, "")
+    if (searchValue.length == 0) {
+        SIDEBAR_SEARCH_MODE = false
+        NO_ENVIRONMENTS_FOUND_INFO.style.display = "none"
+    } else {
+        SIDEBAR_SEARCH_MODE = true
+        SEARCH_ENVIRONMENTS_CACHE = ENVIRONMENTS.filter(env => env.name.toLowerCase().replace(/\s/g, "").includes(searchValue))
+        if (SEARCH_ENVIRONMENTS_CACHE.length == 0) {
+            NO_ENVIRONMENTS_FOUND_INFO.style.display = "block"
+        } else {
+            NO_ENVIRONMENTS_FOUND_INFO.style.display = "none"
+        }
+    }
+    updateEnvironmentChoice()
+})
 
+function updateEnvironmentChoice() {
     for (let ele of document.querySelectorAll(".sidebar.right .envchoice"))
         ele.remove()
 
     ENVIRONMENTS.sort((a, b) => {
         return typeIndex(a) - typeIndex(b)
     })
+
+    ENVIRONMENTS.forEach(env => env.visibleAtSidebar = false)   
+    if (SIDEBAR_SEARCH_MODE == false) {
+        let firstHouse = ENVIRONMENTS.find(env => env.type == ENVIRONMENT_TYPE.HOUSE)
+        let firstSchool = ENVIRONMENTS.find(env => env.type == ENVIRONMENT_TYPE.SCHOOL)
+        let firstWorkplace = ENVIRONMENTS.find(env => env.type == ENVIRONMENT_TYPE.WORKPLACE)
+        let firstCity = ENVIRONMENTS.find(env => env.type == ENVIRONMENT_TYPE.CITY)
+        if (firstCity) firstCity.visibleAtSidebar = true
+        if (firstWorkplace) firstWorkplace.visibleAtSidebar = true
+        if (firstSchool) firstSchool.visibleAtSidebar = true
+        if (firstHouse) firstHouse.visibleAtSidebar = true
+    }
     
-    for (let environment of ENVIRONMENTS) {
+    let shownEnvironments
+    TOO_MANY_ENVIRONMENTS_FOUND_INFO.style.display = "none"
+    if (SIDEBAR_SEARCH_MODE) {
+        shownEnvironments = SEARCH_ENVIRONMENTS_CACHE
+        if (shownEnvironments.length > 10) {
+            shownEnvironments = shownEnvironments.slice(0, 10)
+            TOO_MANY_ENVIRONMENTS_FOUND_INFO.style.display = "block"
+        }
+    } else {
+        shownEnvironments = ENVIRONMENTS.filter(env => env.visibleAtSidebar)
+    }
+    for (let environment of shownEnvironments) {
         let button = document.createElement("button")
         let deleteButton = document.createElement("button")
         deleteButton.textContent = "-"
         deleteButton.classList.add("delete")
         button.classList.add("envchoice")
-        button.textContent = environment.name
-        button.appendChild(deleteButton)
-        if (environment.type == ENVIRONMENT_TYPE.HOUSE) {
-            HOUSES_SECTION.appendChild(button)
-        } else {
-            RIGHT_SIDEBAR.insertBefore(button, SIDEBAR_HOUSES_HEADER)
+        let buttonText = environment.name
+        if (SIDEBAR_SEARCH_MODE == false) {
+            let envTypeCount = countEnvironmentType(environment.type)
+            if (envTypeCount > 1)
+                buttonText += ` (von ${envTypeCount})`
         }
+        button.textContent = buttonText
+        button.appendChild(deleteButton)
+        RIGHT_SIDEBAR.appendChild(button)
         if (SELECTED_ENVIRONMENT != null && environment.name == SELECTED_ENVIRONMENT.name)
             button.classList.add("selected")
 
@@ -326,6 +412,10 @@ RESET_DEATHS_BUTTON.addEventListener("click", event => {
 RESET_TIME_BUTTON.addEventListener("click", event => {
     CLOCK.reset()
     infectionsPerDay = Array()
+    infectedPerDay = Array()
+    immunePerDay = Array()
+    alivePerDay = Array()
+    rValuePerDay = Array()
     if (RUNNING_GRAPH) RUNNING_GRAPH()
     updateTable()
 })
@@ -429,3 +519,59 @@ function decreaseVaccinations() {
     updateTable()
 }
 DECREASE_VACCINATIONS_BUTTON.addEventListener("click", decreaseVaccinations)
+
+function visitPage(url) {
+    window.open(url, "_blank")
+}
+
+function uploadStatus(skipChecks=false) {
+    // run checks
+    if (!skipChecks) {
+        if (alivePerDay.length < 5) {
+            alert("Es müssen mindestens 5 Tage gespielt werden!")
+            return
+        }
+        if (countImmune(getAllPlayers()) == 0 && countInfected(getAllPlayers()) == 0) {
+            alert("Es hat noch kein Infektionsgeschehen stattgefunden!")
+            return
+        }
+    }
+
+    let params = {
+        title: prompt("Unter welchem Titel willst du diesen Verlauf veröffentlichen?", ""),
+        data_version: 2,
+        data: JSON.stringify(getCurrentJSONState())
+    }
+
+    if (params.title == null) return
+
+    if (params.title.length < 1 || params.title.length > 50) {
+        alert("Der Titel muss zwischen 1 und 50 Zeichen lang sein!")
+        return
+    }
+
+    let uploadApi = "https://www.noel-friedrich.de/coville/api/upload.php"
+
+    let paramString = ""
+
+    for (let param in params) {
+        paramString += param + "=" + encodeURIComponent(params[param]) + "&"
+    }
+
+    paramString = paramString.substring(0, paramString.length - 1)
+
+    fetch(uploadApi, {
+        method: "POST",
+        body: new URLSearchParams(paramString)
+    }).catch(error => {
+        alert("Es ist ein Fehler aufgetreten:\n" + error)
+    }).then(response => {
+        if (response.ok) {
+            alert("Dein Status wurde erfolgreich hochgeladen!")
+        } else {
+            alert("Es ist ein Fehler aufgetreten:\n" + response.statusText)
+        }
+    })
+}
+
+UPLOAD_STATUS_BUTTON.addEventListener("click", () => uploadStatus())
