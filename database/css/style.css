@@ -1,0 +1,580 @@
+html {
+    --control-width: 300px;
+    --header-background: #333333;
+    --lighter-header-background: #646464;
+    --header-color: #ffffff;
+    --background-color: #f0f0f0;
+    --text-color: #333333;
+    --control-background: #ffffff;
+    --font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --control-darker-background: #f5f5f5;
+    --overview-width: 400px;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    color: var(--text-color);
+}
+
+header {
+    background: var(--header-background);
+    padding: 20px;
+    position: relative;
+    height: 35px;
+}
+
+header > .logo {
+    height: 35px;
+    position: absolute;
+}
+
+.rotating {
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin { 
+    100% { 
+        -webkit-transform: rotate(360deg); 
+        transform: rotate(360deg); 
+    } 
+}
+
+header > h1 {
+    color: var(--header-color);
+    font-size: 30px;
+    margin: 0;
+    margin-left: 50px;
+}
+
+header > .nav {
+    position: absolute;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+}
+
+header > .nav > button, header > .nav > a {
+    background: var(--header-background);
+    border: none;
+    color: var(--header-color);
+    font-size: 20px;
+    cursor: pointer;
+    padding-right: 10px;
+    font-family: var(--font-family);
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.1s;
+    text-decoration: none;
+}
+
+header > .nav > button:hover, header > .nav > a:hover {
+    background: var(--lighter-header-background);
+}
+
+.content-container {
+    display: grid;
+    grid-template-columns: var(--overview-width) var(--control-width) 1fr var(--control-width);
+    height: calc(100vh - 75px);
+    background: var(--background-color);
+}
+
+.control-bar {
+    background: var(--control-background);
+    padding: 20px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.control-bar > * {
+    margin-bottom: 10px;
+}
+
+.control-bar > h1 {
+    font-size: 25px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.control-bar table.info-table {
+    width: 100%;
+    border: 1px solid var(--text-color);
+    padding: 10px;
+    background-color: var(--control-darker-background);
+}
+
+.control-bar table.info-table > tbody > tr > * {
+    font-family: FontAwesome;
+}
+
+.control-bar table.info-table > tbody > tr.subpoint > th {
+    padding-left: 20px;
+}
+
+.control-bar table.info-table > tbody > tr > th {
+    font-weight: normal;
+    text-align: left;
+}
+
+.control-bar table.info-table > tbody > tr > td {
+    text-align: right;
+}
+
+.control-bar > #houses-section > button {
+    margin-bottom: 10px;
+}
+
+.control-bar > button, .control-bar > div > button {
+    width: 100%;
+    font-size: 20px;
+    background-color: var(--control-darker-background);
+    border: none;
+    color: var(--text-color);
+    padding: 10px;
+    cursor: pointer;
+    position: relative;
+    text-align: left;
+    border: 1px solid var(--text-color);
+    font-size: 17px;
+    font-family: FontAwesome;
+}
+
+.control-bar > input[type=text] {
+    width: 100%;
+    font-size: 20px;
+    background-color: var(--control-darker-background);
+    border: none;
+    color: var(--text-color);
+    padding: 10px;
+    position: relative;
+    text-align: left;
+    border: 1px solid var(--text-color);
+    font-size: 17px;
+    font-family: FontAwesome;
+    box-sizing: border-box;
+    margin-bottom: 25px;
+}
+
+#no-environments-found-info, #too-many-environments-found-info {
+    text-align: center;
+    font-family: fontAwesome;
+    margin-top: -10px;
+    font-style: italic;
+    color: grey;
+    display: none;
+}
+
+.control-bar > button.selected, .control-bar > div > button.selected {
+    background: white;
+}
+
+.control.right button.envchoice > button.delete {
+    color: var(--text-color);
+    border: none;
+    background: lightpink;
+    cursor: pointer;
+    position: absolute;
+    font-size: 15px;
+    text-align: right;
+    right: 0;
+    height: 100%;
+    top: 0;
+}
+
+.control.right button.envchoice > button.delete:hover {
+    background: lightcoral;
+}
+
+.control-bar > button.selected:hover, .control-bar > div > button.selected:hover {
+    box-shadow: none;
+}
+
+.control-bar > #start-button {
+    text-align: center;
+    background: lightgreen;
+}
+
+.control-bar > #stop-button {
+    display: none;
+    text-align: center;
+    background: lightpink;
+}
+
+.control-bar > .button-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+}
+
+.control-bar > button.add::after {
+    content: "+";
+    font-family: FontAwesome;
+    font-size: 20px;
+    margin-right: 10px;
+    position: absolute;
+    right: 3px;
+}
+
+.control-bar > button.sub::after {
+    content: "-";
+    font-family: FontAwesome;
+    font-size: 20px;
+    margin-right: 12px;
+    position: absolute;
+    right: 3px;
+}
+
+.control-bar > button:hover, .control-bar > div > button:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background: white;
+}
+
+#please-choose-environment {
+    z-index: 101;
+    position: absolute;
+    width: 500px;
+    box-sizing: border-box;
+    padding: 50px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 30px;
+    font-family: fontAwesome;
+    color: gray;
+    font-style: italic;
+    cursor: default;
+}
+
+.playerinfo-container {
+    position: absolute;
+    width: 250px;
+    box-sizing: border-box;
+    background: white;
+    text-align: center;
+    font-size: 20px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+    z-index: 1000;
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.playerinfo-container > .info-table {
+    background: var(--control-darker-background);
+    padding: 10px;
+    border: 1px solid var(--text-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.playerinfo-container > .info-table.single {
+    grid-template-columns: 1fr;
+}
+
+.playerinfo-container > .info-table > .rowhead {
+    text-align: left;
+}
+
+.playerinfo-container > .info-table > .rowvalue {
+    text-align: right;
+}
+
+.playerinfo-container > .info-table.single > .rowvalue {
+    text-align: center;
+    cursor: pointer;
+}
+
+.playerinfo-container > .info-table.single > .rowvalue:hover {
+    color: blue;
+}
+
+.playerinfo-container > h1 {
+    margin: 0;
+    margin-top: 10px;
+    font-size: 25px;
+}
+
+.playerinfo-overlay {
+    z-index: 999;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.textAlignCenter {
+    text-align: center !important;
+}
+
+.config-container-container {
+    width: 100%;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+.config-container {
+    width: 100%;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.config-container > h1 {
+    font-family: fontAwesome;
+    font-weight: normal;
+    text-align: center;
+    color: gray;
+    font-style: italic;
+}
+
+.configs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
+    padding: 20px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    background: var(--control-darker-background);
+    border: 1px solid var(--text-color);
+}
+
+.configs > * {
+    margin-top: 10px;
+}
+
+#reset-config-button {
+    margin-bottom: 20px;
+    background-color: var(--control-darker-background);
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    font-size: 17px;
+    font-family: fontAwesome;
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+#reset-config-button:hover {
+    background: white;
+}
+
+.configs > input {
+    font-size: 17px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 5px;
+}
+
+.configs > label {
+    text-align: right;
+    padding-top: 5px;
+    font-size: 17px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+}
+
+.loading-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+}
+
+.loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading-container > img {
+    width: 100px;
+}
+
+.simulaton-container {
+    position: relative;
+}
+
+.sim-content-container {
+    position: relative;
+    height: 100%;
+}
+
+#main-canvas {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    background: var(--background-color);
+    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.simulation-overview-container {
+    --transition-delay: 0s;
+    position: relative;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0);
+    width: 100%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    cursor: pointer;
+    margin-bottom: 15px;
+    height: 70px;
+    transition: 0.3s;  
+    transition-delay: var(--transition-delay);
+    border: 1px solid black;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.simulation-overview-container > h3 {
+    font-size: 20px;
+    color: var(--text-color);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    max-width: 80%;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    z-index: 100;
+    transition: 0.2s;  
+    transition-delay: var(--transition-delay);
+    font-weight: normal;
+}
+
+.simulation-overview-container:hover h3, .simulation-overview-container.selected h3 {
+    top: 85%;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.simulation-overview-container:hover, .simulation-overview-container.selected {
+    background: white;
+    height: 200px;
+    border-radius: 20px;
+}
+
+.simulation-overview-container:hover .canvas-overlay, .simulation-overview-container.selected .canvas-overlay {
+    background: rgba(255, 255, 255, 0);
+}
+
+.simulation-overview-container .canvas-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.95);
+    transition: 0.2s;  
+    transition-delay: var(--transition-delay);
+}
+
+.simulation-overview-container canvas {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    transition: 0.3s;  
+    transition-delay: var(--transition-delay);
+    margin-top: 0px;
+    margin-left: -16px;
+}
+
+.simulations-container {
+    position: relative;
+    padding: 40px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+
+table.big {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.big td, table.big th, table.big tr {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table.big tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.big tr:hover {
+    background-color: #ddd;
+}
+
+table.big th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #e65757;
+    color: white;
+    border-left: none;
+    border-right: none;
+}
+
+.nopadding {
+    padding: 0;
+}
+
+.spaced {
+    box-sizing: border-box;
+}
+
+.spaced td {
+    padding: 10px;
+}
+
+.parameter-table-container {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.graphHover td {
+    background: #ffa3a3 !important;
+}
+
+#simulations-search-input {
+    width: 100%;
+    font-size: 27px;
+    font-family: fontAwesome;
+    color: var(--text-color);
+    border: 1px solid black;
+    border-radius: 0;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+
+#no-search-results {
+    margin-top: -5px;
+    font-size: 20px;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: fontAwesome;
+    color: grey;
+    display: none;
+    font-style: italic;
+}
